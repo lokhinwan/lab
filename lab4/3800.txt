@@ -1,0 +1,41 @@
+/******************** WRITE YOUR INTERRUPT SERVICE ROUTINE HERE***********************/  
+void rect(){
+	float output;
+	
+	wrapAroundBuffer(mono_read_16Bit());
+	output = convolution();
+	mono_write_16Bit((short)output);
+}
+ 
+void shiftBuffer(short newX){
+	int i;
+	for (i= N-1 ; i>0; i--){
+		x[i]=x[i-1];
+	}
+	x[0] = newX;
+}
+
+void inline wrapAroundBuffer(short newX){
+	
+
+	x[bufferIndex] = newX;
+	bufferIndex= (bufferIndex + 1)%N;
+}
+short inline accessWrapAroundBuffer(int p){
+	
+	return x[p];
+}	
+	
+
+float convolution(){
+	float y=0;
+	int i;
+	for (i =0; (i)<bufferIndex; i++){
+		y += b[i] * accessWrapAroundBuffer(bufferIndex - i);
+	}
+	for (i; i<N-bufferIndex; i++){
+		y += b[i] * accessWrapAroundBuffer(N- i);
+	}
+	
+	return(y);
+}
